@@ -53,10 +53,13 @@ export function searchLinks(userId, keyword) {
   return db.prepare(`
     SELECT * FROM links
     WHERE user_id = ?
-      AND (LOWER(title) LIKE ? OR LOWER(note) LIKE ?
-        OR LOWER(url) LIKE ? OR LOWER(tags) LIKE ? OR LOWER(description) LIKE ?)
+      AND (
+        LOWER(title) LIKE ? OR LOWER(note) LIKE ?
+        OR LOWER(url) LIKE ? OR LOWER(tags) LIKE ?
+        OR LOWER(description) LIKE ? OR LOWER(category) LIKE ?
+      )
     ORDER BY created_at DESC LIMIT 20
-  `).all(userId, q, q, q, q, q);
+  `).all(userId, q, q, q, q, q, q);
 }
 
 /* ---------- REMINDERS ---------- */

@@ -2,6 +2,7 @@ import { getPending, clearPending } from "../utils/state.js";
 import {
   updateNote, getLink, addReminder,
   addUserCategory, updateCategory, getAllCategories,
+  searchLinks,
 } from "../db/queries.js";
 import { linkCard } from "../utils/format.js";
 import { linkActionsKeyboard, categoryKeyboard } from "../keyboards/linkActions.js";
@@ -82,6 +83,32 @@ export function registerPending(bot) {
       return ctx.reply(linkCard(link), {
         parse_mode: "HTML",
         reply_markup: linkActionsKeyboard(linkId, link.url),
+        disable_web_page_preview: true,
+      });
+    }
+
+    /* -------- Search -------- */
+    if (p.action === "search") {
+      const q = text.trim();
+      clearPending(ctx.from.id);
+      if (!q) return ctx.reply("🔎 Please send a keyword, category, note, or URL to search.");
+
+      const rows = searchLinks(ctx.from.id, q);
+      if (!rows.length) {
+        return ctx.reply(`🔎 No results found for <b>${escapeHtml(q)}</b>. Try a title, category, note, URL, or website name.`, {
+          parse_mode: "HTML",
+        });
+      }
+
+      const formatted = rows.map((r, i) =>
+        `${i + 1}. <b>${escapeHtml(r.title || "Untitled link")}</b>${r.favorite ? " ⭐" : ""}\n` +
+        `   📂 ${escapeHtml(r.category || "Unsorted")}  ·  #${r.id}\n` +
+        (r.note ? `   📝 ${escapeHtml(r.note)}\n` : "") +
+        `   ${escapeHtml(r.url)}`
+      ).join("\n\n");
+
+      return ctx.reply(`🔎 <b>${rows.length} results</b> for <b>${escapeHtml(q)}</b>\n\n${formatted}`, {
+        parse_mode: "HTML",
         disable_web_page_preview: true,
       });
     }

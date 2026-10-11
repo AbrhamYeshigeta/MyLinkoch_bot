@@ -36,8 +36,12 @@ export function registerCallbacks(bot) {
   });
 
   bot.callbackQuery("search_links", async (ctx) => {
-    await ctx.answerCallbackQuery();
-    await ctx.reply("🔎 Search your saved links with /search <keyword>", { parse_mode: "HTML" });
+    await ctx.answerCallbackQuery({ text: "Search mode is ready" });
+    setPending(ctx.from.id, "search", {});
+    await ctx.reply(
+      "🔎 <b>Search mode is ready</b>\n\nSend any keyword, category name, note, URL, or website name to search your saved links.",
+      { parse_mode: "HTML" }
+    );
   });
 
   bot.callbackQuery("manage_reminders", async (ctx) => {

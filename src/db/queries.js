@@ -75,6 +75,17 @@ export function dueReminders(nowUnix) {
   `).all(nowUnix);
 }
 
+export function listUpcomingReminders(userId, limit = 20) {
+  return db.prepare(`
+    SELECT r.id AS reminder_id, l.id AS link_id, l.title, l.url, r.remind_at
+    FROM reminders r
+    JOIN links l ON l.id = r.link_id
+    WHERE r.user_id = ? AND r.sent = 0
+    ORDER BY r.remind_at ASC
+    LIMIT ?
+  `).all(userId, limit);
+}
+
 export function markReminderSent(rid) {
   db.prepare(`UPDATE reminders SET sent = 1 WHERE id = ?`).run(rid);
 }
@@ -110,4 +121,12 @@ export function removeUserCategory(userId, name) {
     DELETE FROM user_categories WHERE user_id = ? AND name = ?
   `).run(userId, name.trim());
   return info.changes > 0;
+}
+
+// src/db/queries.js
+export function listLinksForUser(userId) {
+  return db.prepare(`
+    SELECT * FROM links WHERE user_id = ? 
+    ORDER BY category ASC, created_at DESC
+  `).all(userId);
 }

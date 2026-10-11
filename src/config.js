@@ -9,6 +9,10 @@ export const config = {
   botToken: process.env.BOT_TOKEN,
   dbPath: "data/linkochie.db",
   fetchTimeoutMs: 8000,
+  requiredChannels: [
+    "@Rex_Portfolio",
+    "@linkochie_news",
+  ],
 
   // Universal defaults — anyone can use these out of the box
   defaultCategories: [

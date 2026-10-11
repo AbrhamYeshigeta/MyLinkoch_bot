@@ -1,16 +1,32 @@
-import { listByCategory, listFavorites } from "../db/queries.js";
+// src/handlers/myLinks.js
+import { listByCategory, listFavorites, listLinksForUser } from "../db/queries.js";
+import { escapeHtml } from "../utils/format.js";
 
 export function registerMyLinks(bot) {
   bot.command("my_links", (ctx) => {
-    const rows = listByCategory(ctx.from.id);
-    if (!rows.length) return ctx.reply("You have no links yet. Send me one! 📎");
+    const links = listLinksForUser(ctx.from.id);
+    if (!links.length) return ctx.reply("You have no links yet. Send me one! 📎");
 
-    const total = rows.reduce((s, r) => s + r.count, 0);
-    const text =
-      `📚 <b>MY SAVED LINKS</b> (${total})\n\n` +
-      rows.map((r) => `${r.category} — <b>${r.count}</b>`).join("\n");
+    const grouped = links.reduce((acc, link) => {
+      if (!acc[link.category]) acc[link.category] = [];
+      acc[link.category].push(link);
+      return acc;
+    }, {});
 
-    ctx.reply(text, { parse_mode: "HTML" });
+    let text = `📚 <b>MY SAVED LINKS (${links.length})</b>\n\n`;
+    
+    for (const [cat, items] of Object.entries(grouped)) {
+      text += `<b>${cat}</b>\n`;
+      items.forEach(item => {
+        text += `  #${item.id} — <a href="${item.url}">${escapeHtml(item.title)}</a>\n`;
+      });
+      text += `\n`;
+    }
+
+    ctx.reply(text, { 
+      parse_mode: "HTML", 
+      disable_web_page_preview: true 
+    });
   });
 
   bot.command("fav", (ctx) => {

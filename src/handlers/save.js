@@ -4,8 +4,10 @@ import { insertLink, getLink } from "../db/queries.js";
 import { linkActionsKeyboard } from "../keyboards/linkActions.js";
 import { linkCard } from "../utils/format.js";
 import { logger } from "../utils/logger.js";
+import { incrementUserLinks } from "../middlewares/trackUsers.js";
 
 const URL_RE = /https?:\/\/[^\s<>"']+/i;
+
 
 export function registerSave(bot) {
   bot.on("message:text", async (ctx, next) => {
@@ -34,6 +36,8 @@ export function registerSave(bot) {
       tags,
       note,
     });
+
+    incrementUserLinks(ctx.from.id);
 
     const link = getLink(id, userId);
 

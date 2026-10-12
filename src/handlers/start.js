@@ -1,11 +1,19 @@
-// src/handlers/start.js
 import { InputFile } from "grammy";
 import { mainMenuKeyboard } from "../keyboards/menu.js";
+import { config } from "../config.js";
+import { adminOnly } from "../middlewares/adminOnly.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const welcomeImage = path.resolve(__dirname, "../../public/img/Linkoch_Bot.jpeg");
+
+export function shouldShowAdminDashboard(userId) {
+  const adminId = Number(config.adminId || 0);
+  const currentUserId = Number(userId ?? 0);
+
+  return adminId > 0 && currentUserId > 0 && currentUserId === adminId;
+}
 
 export function buildWelcomeMessage() {
   return (
@@ -42,38 +50,44 @@ export function buildHelpMessage() {
 export function registerStart(bot) {
   const sendMenu = async (ctx) => {
     const welcomeText = buildWelcomeMessage();
+    const kb = mainMenuKeyboard();
+
+    if (shouldShowAdminDashboard(ctx.from?.id)) {
+      kb.row().text("👑 Admin Dashboard", "admin:stats");
+    }
 
     try {
       await ctx.replyWithPhoto(new InputFile(welcomeImage), {
         caption: welcomeText,
         parse_mode: "HTML",
-        reply_markup: mainMenuKeyboard(),
+        reply_markup: kb,
       });
     } catch (e) {
       console.error("Image send failed:", e.message);
       await ctx.reply(welcomeText, {
         parse_mode: "HTML",
-        reply_markup: mainMenuKeyboard(),
+        reply_markup: kb,
       });
     }
   };
 
   const sendHelp = async (ctx) => {
-    const helpText = buildHelpMessage();
-
     try {
-      await ctx.reply(helpText, {
+      await ctx.reply(buildHelpMessage(), {
         parse_mode: "HTML",
         reply_markup: mainMenuKeyboard(),
       });
     } catch (e) {
       console.error("Help message failed:", e.message);
-      await ctx.reply(helpText, {
-        parse_mode: "HTML",
-      });
+      await ctx.reply(buildHelpMessage(), { parse_mode: "HTML" });
     }
   };
 
   bot.command("start", sendMenu);
   bot.command("help", sendHelp);
+
+  bot.callbackQuery("admin:stats", adminOnly, async (ctx) => {
+    await ctx.answerCallbackQuery();
+    await ctx.reply("👑 Type /stats to see the admin dashboard.");
+  });
 }

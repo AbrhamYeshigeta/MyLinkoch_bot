@@ -1,4 +1,3 @@
-// src/middlewares/subscription.js
 import { InlineKeyboard } from "grammy";
 import { config } from "../config.js";
 
@@ -49,16 +48,15 @@ export function joinKeyboard() {
 export async function checkSubscription(ctx, next) {
   const requiredChannels = Array.isArray(config.requiredChannels) ? config.requiredChannels : [];
   const userId = ctx.from?.id;
+  const text = ctx.message?.text ?? "";
+  const command = text.split(" ")[0];
+  const adminCommandNames = ["/start", "/help", "/stats", "/admin", "/listusers", "/export", "/check_sub"];
 
   if (userId && isVerifiedRecently(userId)) {
     return next();
   }
 
-  if (
-    ctx.message?.text === "/start" ||
-    ctx.message?.text === "/help" ||
-    ctx.callbackQuery?.data === "check_sub"
-  ) {
+  if (adminCommandNames.includes(command) || ctx.callbackQuery?.data === "check_sub") {
     return next();
   }
 
@@ -75,8 +73,9 @@ export async function checkSubscription(ctx, next) {
         break;
       }
     } catch (e) {
-      console.error(`Error checking channel ${channel}:`, e.message);
+      console.warn(`Ignoring subscription channel ${channel}:`, e.message);
       allSubscribed = false;
+      break;
     }
   }
 

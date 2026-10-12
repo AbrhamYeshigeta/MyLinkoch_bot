@@ -5,16 +5,18 @@ if (!process.env.BOT_TOKEN) {
   process.exit(1);
 }
 
+const requiredChannelsFromEnv = (process.env.REQUIRED_CHANNELS ?? "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
+
 export const config = {
   botToken: process.env.BOT_TOKEN,
   dbPath: "data/linkochie.db",
   fetchTimeoutMs: 8000,
-  requiredChannels: [
-    "@Rex_Portfolio",
-    "@linkochie_news",
-  ],
+  adminId: Number(process.env.ADMIN_ID) || 0,
+  requiredChannels: requiredChannelsFromEnv,
 
-  // Universal defaults — anyone can use these out of the box
   defaultCategories: [
     "📚 Learning",
     "💼 Work",

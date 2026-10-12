@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { buildWelcomeMessage, buildHelpMessage } from "./start.js";
+import { buildWelcomeMessage, buildHelpMessage, shouldShowAdminDashboard } from "./start.js";
 
 test("welcome message stays clean and does not include the subscription prompt", () => {
   const text = buildWelcomeMessage();
@@ -15,4 +15,10 @@ test("help message explains the main Linkoche bot services", () => {
   expect(text).toContain("/search");
   expect(text).toContain("My Links");
   expect(text).toContain("Categories");
+});
+
+test("admin dashboard visibility is restricted to the configured admin user", () => {
+  expect(shouldShowAdminDashboard(6909025941)).toBe(true);
+  expect(shouldShowAdminDashboard(123456789)).toBe(false);
+  expect(shouldShowAdminDashboard(undefined)).toBe(false);
 });

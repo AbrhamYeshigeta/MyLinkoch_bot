@@ -57,4 +57,4 @@ export function incrementUserLinks(userId) {
     db.prepare(`UPDATE users SET links_saved = links_saved + 1 WHERE user_id = ?`)
       .run(userId);
   } catch {}
-}s
+}

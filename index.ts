@@ -1,1 +1,1 @@
-console.log("Hello via Bun!");
+console.log("MyLinks Bot is ready for local development. For Vercel, use the webhook in api/bot.js and set the Telegram webhook URL to /api/bot.");

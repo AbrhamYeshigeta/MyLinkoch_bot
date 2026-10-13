@@ -39,7 +39,7 @@ const requiredChannelsFromEnv = (process.env.REQUIRED_CHANNELS ?? "")
 
 export const config = {
   botToken: process.env.BOT_TOKEN,
-  dbPath: "data/linkochie.db",
+  dbPath: process.env.VERCEL ? "/tmp/linkochie.db" : "data/linkochie.db",
   fetchTimeoutMs: 8000,
   adminId: Number(process.env.ADMIN_ID) || 0,
   requiredChannels: requiredChannelsFromEnv,

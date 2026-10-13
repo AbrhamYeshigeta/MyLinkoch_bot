@@ -2,20 +2,32 @@ import { test, expect } from "bun:test";
 import { config } from "../config.js";
 import { checkSubscription, markUserVerified } from "./subscription.js";
 
-test("start command bypasses subscription gate", async () => {
+test("start command shows the subscription gate for first-time users", async () => {
+  const originalRequiredChannels = config.requiredChannels;
+  config.requiredChannels = ["@example_channel"];
+
   let nextCalled = false;
+  let replyText = "";
   const ctx = {
     message: { text: "/start" },
     from: { id: 42 },
     api: { getChatMember: async () => ({ status: "left" }) },
-    reply: () => {},
+    reply: (text) => {
+      replyText = text;
+    },
   };
 
-  await checkSubscription(ctx, () => {
-    nextCalled = true;
-  });
+  try {
+    await checkSubscription(ctx, () => {
+      nextCalled = true;
+    });
+  } finally {
+    config.requiredChannels = originalRequiredChannels;
+  }
 
-  expect(nextCalled).toBe(true);
+  expect(nextCalled).toBe(false);
+  expect(replyText).toContain("Finish your access setup");
+  expect(replyText).toContain("Check Subscription");
 });
 
 test("button action triggers subscription page when unsubscribed", async () => {

@@ -51,16 +51,14 @@ export async function checkSubscription(ctx, next) {
   const userId = ctx.from?.id;
   const text = ctx.message?.text ?? "";
   const command = text.split(" ")[0];
-  const adminCommandNames = ["/start", "/help", "/stats", "/admin", "/listusers", "/export", "/check_sub"];
+  const adminCommandNames = ["/help", "/stats", "/admin", "/listusers", "/export", "/check_sub"];
+  const isAdminUser = userId && Number(config.adminId || 0) === Number(userId);
 
   if (userId && isVerifiedRecently(userId)) {
     return next();
   }
 
-  if (
-    adminCommandNames.includes(command) ||
-    ctx.callbackQuery?.data === "check_sub"
-  ) {
+  if (isAdminUser || adminCommandNames.includes(command) || ctx.callbackQuery?.data === "check_sub") {
     return next();
   }
 

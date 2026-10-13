@@ -50,11 +50,7 @@ export function buildHelpMessage() {
 export function registerStart(bot) {
   const sendMenu = async (ctx) => {
     const welcomeText = buildWelcomeMessage();
-    const kb = mainMenuKeyboard();
-
-    if (shouldShowAdminDashboard(ctx.from?.id)) {
-      kb.row().text("👑 Admin Dashboard", "admin:stats");
-    }
+    const kb = mainMenuKeyboard(ctx.from?.id);
 
     try {
       await ctx.replyWithPhoto(new InputFile(welcomeImage), {

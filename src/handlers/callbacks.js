@@ -7,6 +7,7 @@ import {
 import {
   categoryKeyboard, reminderKeyboard, linkActionsKeyboard,
 } from "../keyboards/linkActions.js";
+import { mainMenuKeyboard } from "../keyboards/menu.js";
 import { setPending, clearPending } from "../utils/state.js";
 import { linkCard, escapeHtml } from "../utils/format.js";
 import { markUserVerified } from "../middlewares/subscription.js";
@@ -82,10 +83,9 @@ export function registerCallbacks(bot) {
     if (allSubscribed) {
       markUserVerified(ctx.from.id);
       await ctx.answerCallbackQuery({ text: "✅ Verified. You can now continue." });
-      const { mainMenuKeyboard } = await import("../keyboards/menu.js");
       await ctx.editMessageText(
         "✅ <b>Subscription verified!</b>\n\nYou can now use Linkochie normally.\n\nChoose an action below and start saving your links.",
-        { parse_mode: "HTML", reply_markup: mainMenuKeyboard() }
+        { parse_mode: "HTML", reply_markup: mainMenuKeyboard(ctx.from.id) }
       );
       return;
     }

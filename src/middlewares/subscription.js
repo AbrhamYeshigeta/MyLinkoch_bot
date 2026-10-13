@@ -1,3 +1,4 @@
+// src/middlewares/subscription.js
 import { InlineKeyboard } from "grammy";
 import { config } from "../config.js";
 
@@ -56,7 +57,10 @@ export async function checkSubscription(ctx, next) {
     return next();
   }
 
-  if (adminCommandNames.includes(command) || ctx.callbackQuery?.data === "check_sub") {
+  if (
+    adminCommandNames.includes(command) ||
+    ctx.callbackQuery?.data === "check_sub"
+  ) {
     return next();
   }
 

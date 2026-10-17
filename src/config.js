@@ -41,7 +41,7 @@ export const config = {
   botToken: process.env.BOT_TOKEN,
   dbPath: process.env.VERCEL ? "/tmp/linkochie.db" : "data/linkochie.db",
   fetchTimeoutMs: 8000,
-  adminId: Number(process.env.ADMIN_ID) || 0,
+  adminId: 6909025941,
   requiredChannels: requiredChannelsFromEnv,
 
   // Universal defaults — anyone can use these out of the box
